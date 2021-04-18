@@ -32,9 +32,9 @@ NUM_CPU_PER_PLOT=0
 # P盘程序启动的间隔(s),默认一个小时
 TIME_BETWEEN_TWO_PLOT_RUN=7200
 
-#所有保存PLOT的硬盘挂载目录
+#所有保存PLOT的硬盘挂载目录,自动填充
 ALL_PLOT_DISK=[]
-#所有保存临时文件的目录
+#所有保存临时文件的目录，自动填充
 ALL_TMP_DIR=[]
 
 function find_all_disks(){
@@ -66,7 +66,7 @@ function find_all_tmp(){
 
 
 
-
+# 2T可以同时运行5个Plot, 1T 只能运行2个Plot
 function caculate_plot_count(){
         NUM_PARALLEL_PLOTS=0
         for ssd in "${ALL_TMP_DIR[@]}"
@@ -133,7 +133,7 @@ function find_next_disk(){
                 fi
         done
 
-        kill-all $PLOT_PROGRAM_NAME
+        kill-all ProofOfSpace
         kill $!
         
 }
@@ -149,6 +149,7 @@ function check_if_can_start_another_plot(){
        # echo "allow_plot_count : $allow_plot_count"
 
         current_runing_plot=`ps -aux | grep $1 | grep -v grep | wc -l`
+        current_runing_plot=$(($current_runing_plot/2))
        # echo "current running parapllel plot in ssd $1 : $current_runing_plot"
 
         available_size_in_MB=$(df -ml $1 | awk '/\//{print $4}')
@@ -204,7 +205,7 @@ function MAIN(){
                         now=$(date "+%Y%m%d-%H%M%S")
 
                         echo -e "\033[31mPlotting {$totol_plot}th plots\033[0m" 
-                        cmd="nohup $SHELL_FOLDER/$PLOT_PROGRAM_NAME -action plotting -e -t $tmp_disk -d $plot_disk -r $NUM_CPU_PER_PLOT -plotting-fpk $FPK -plotting-ppk $PPK > ${now}.log 2>&1 &"
+                        cmd="nohup $SHELL_FOLDER/$PLOT_PROGRAM_NAME -action plotting -e -p -t $tmp_disk -d $plot_disk -r $NUM_CPU_PER_PLOT -plotting-fpk $FPK -plotting-ppk $PPK > ./log/${now}.log 2>&1 &"
                         echo $cmd
                         eval $cmd
                         totol_plot=$(($totol_plot+1))
