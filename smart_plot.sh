@@ -17,19 +17,19 @@ NUM_PARALLEL_PLOTS=0
 
 
 #k=32 临时文件大小
-TMP_SIZE_IN_MB=360000
+TMP_SIZE_IN_MB=300000
 
 #CPU核心数
-NUM_CPU_CORE=48
+NUM_CPU_CORE=`cat /proc/cpuinfo | grep processor | wc -l`
 
 #CPU数量
-NUM_CPU=2
+#NUM_CPU=2
 
 
 #每个P盘程序分配的核心数， 通过caculate_plot_count函数进行计算
 NUM_CPU_PER_PLOT=0
 
-# P盘程序启动的间隔(s),默认一个小时
+# P盘程序启动的间隔(s),默认2个小时
 TIME_BETWEEN_TWO_PLOT_RUN=7200
 
 #所有保存PLOT的硬盘挂载目录,自动填充
@@ -192,7 +192,20 @@ function MAIN(){
 
         caculate_plot_count
 
-        totol_plot=1
+
+        totol_plot=0
+
+        if [ ! -d ./log ];then
+        	 echo "making dir log"
+        	 mkdir log
+        	 totol_plot=1
+
+        else
+        	totol_plot=`ll ./log | grep "log" | wc -l`
+        	totol_plot=$(($totol_plot+1))
+        fi
+
+       
 
         while true
         do
