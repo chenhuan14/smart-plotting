@@ -1,10 +1,9 @@
-#/bin/bash
-
+#!/bin/sh
 
 SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 PLOT_PROGRAM_NAME="chia-plotter-linux-amd64"
-FPK="0x80f3e310878245e007fc79592935380b2f7f09340568083765978245f15cd6578142c5b27907f3df90e243217b8574f5"
-PPK="0xadb16a1f48f3b5e9e3c839c581d08f1c1b4dbca888b73b7efde6b583b1112f87fdc4ef120b659afd1d3bc19100c5366b"
+FPK="0x866c34f9bdff017caa01b4182e9283be4d36ce3ee0eb399040fe63205b6c157402824c12fc8724fda0e7e266578c9906"
+PPK="0x91b3ce594ce6847bceebaccb89656452dce1cee35b1fc0165fbe494e7772a03a63360625aaad6482a1275f6d8d7ca2ea"
 
 # tmp 目录
 TMP_DIR="/home/chia-tmp"
@@ -29,8 +28,8 @@ NUM_CPU_CORE=`cat /proc/cpuinfo | grep processor | wc -l`
 #每个P盘程序分配的核心数， 通过caculate_plot_count函数进行计算
 NUM_CPU_PER_PLOT=0
 
-# P盘程序启动的间隔(s),默认2个小时
-TIME_BETWEEN_TWO_PLOT_RUN=7200
+# P盘程序启动的间隔(s),默认2.5个小时
+TIME_BETWEEN_TWO_PLOT_RUN=6300
 
 #所有保存PLOT的硬盘挂载目录,自动填充
 ALL_PLOT_DISK=[]
@@ -218,18 +217,15 @@ function MAIN(){
                         now=$(date "+%Y%m%d-%H%M%S")
 
                         echo -e "\033[31mPlotting {$totol_plot}th plots\033[0m" 
-                        cmd="nohup $SHELL_FOLDER/$PLOT_PROGRAM_NAME -action plotting -e -p -t $tmp_disk -d $plot_disk -r $NUM_CPU_PER_PLOT -plotting-fpk $FPK -plotting-ppk $PPK > ./log/${now}.log 2>&1 &"
+                        cmd="nohup $SHELL_FOLDER/$PLOT_PROGRAM_NAME -action plotting -e -p -t $tmp_disk -d $plot_disk -r $NUM_CPU_PER_PLOT -plotting-fpk $FPK -plotting-ppk $PPK > ./log/${totol_plot}-${now}.log 2>&1 &"
                         echo $cmd
                         eval $cmd
                         totol_plot=$(($totol_plot+1))
                 done
 
                 sleep $TIME_BETWEEN_TWO_PLOT_RUN
-                
-                  
+                      
         done
-
-
 }
 
 MAIN
