@@ -28,7 +28,7 @@ NUM_CPU_CORE=`cat /proc/cpuinfo | grep processor | wc -l`
 #每个P盘程序分配的核心数， 通过caculate_plot_count函数进行计算
 NUM_CPU_PER_PLOT=0
 
-# P盘程序启动的间隔(s),默认2.5个小时
+# P盘程序启动的间隔(s),2T SSD  默认间隔为6300， 1TSSD 默认间隔为10800
 TIME_BETWEEN_TWO_PLOT_RUN=6300
 
 #所有保存PLOT的硬盘挂载目录,自动填充
@@ -65,7 +65,7 @@ function find_all_tmp(){
 
 
 
-# 2T可以同时运行5个Plot, 1T 只能运行2个Plot
+# 2T可以同时运行6个Plot, 1T 只能运行3个Plot
 function caculate_plot_count(){
         NUM_PARALLEL_PLOTS=0
         for ssd in "${ALL_TMP_DIR[@]}"
@@ -78,6 +78,11 @@ function caculate_plot_count(){
         done
 
         NUM_CPU_PER_PLOT=$(( $NUM_CPU_CORE / $NUM_PARALLEL_PLOTS ))
+
+        # NUM_CPU_PER_PLOT 最小为2
+        if [ $NUM_CPU_PER_PLOT -eq 1 ];then
+            NUM_CPU_PER_PLOT=2
+        fi
 
         echo "The SSD alows : $NUM_PARALLEL_PLOTS plots in parallel. "
 
@@ -203,6 +208,7 @@ function MAIN(){
         	totol_plot=`ll ./log | grep "log" | wc -l`
         	totol_plot=$(($totol_plot+1))
         fi
+
 
        
 
